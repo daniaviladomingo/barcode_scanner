@@ -4,6 +4,7 @@ package avila.domingo.pdf417.camera
 
 import android.graphics.Point
 import android.hardware.Camera
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -16,7 +17,7 @@ import java.util.*
 
 class CameraImp(
     private val windowManager: WindowManager,
-    private val imagePeriodMs: Long,
+    private val imageInterval: Long,
     surfaceView: SurfaceView
 ) : ICamera {
 
@@ -86,14 +87,14 @@ class CameraImp(
                             .filter { screenRatio == (it.width / it.height.toFloat()) }
                             .run {
                                 if (size > 0) {
-                                    get(0).run { customParameters.setPreviewSize(width, height) }
+                                    get(0).let { customParameters.setPreviewSize(1920, 1080) }
                                 } else {
                                     customParameters.setPreviewSize(previewWidth, previewHeight)
                                 }
                             }
 
                         diff = Float.MAX_VALUE
-
+/*
                         customParameters.supportedPictureSizes
                             .sortedByDescending { it.width }
                             .apply {
@@ -114,13 +115,14 @@ class CameraImp(
                                     customParameters.setPictureSize(previewWidth, previewHeight)
                                 }
                             }
-
+*/
                         parameters = customParameters
                         setDisplayOrientation(rotationDegrees())
                         startPreview()
-                        cameraTimer.schedule(cameraTimerTask, 100, imagePeriodMs)
+                        cameraTimer.schedule(cameraTimerTask, 100, imageInterval)
                     }
                 } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 
