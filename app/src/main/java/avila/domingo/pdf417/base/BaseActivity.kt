@@ -9,8 +9,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import avila.domingo.pdf417.R
-import communication.hardware.clean.R
-import communication.hardware.clean.ui.data.ResourceState
+import avila.domingo.pdf417.ui.data.ResourceState
 import kotlinx.android.synthetic.main.activity_base.*
 import kotlinx.android.synthetic.main.view_error.*
 import org.koin.android.ext.android.inject

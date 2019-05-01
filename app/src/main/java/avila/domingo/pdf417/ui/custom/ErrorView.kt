@@ -1,10 +1,10 @@
-package communication.hardware.clean.ui.custom
+package avila.domingo.pdf417.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
-import communication.hardware.clean.R
+import avila.domingo.pdf417.R
 import kotlinx.android.synthetic.main.view_error.view.*
 
 class ErrorView : RelativeLayout {
