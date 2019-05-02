@@ -34,6 +34,8 @@ dependencies {
 
     implementation project(':domain')
     implementation project(':camera')
+    implementation project(':decoder')
+    implementation project(':manager')
 
     // Koin
     implementation 'org.koin:koin-android-viewmodel:2.0.0-rc-2'
@@ -48,6 +50,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0-alpha04'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.1.0-alpha04'
     implementation 'androidx.lifecycle:lifecycle-reactivestreams:2.1.0-alpha04'
+
+    // Barcode
+    implementation "com.google.zxing:core:3.3.3"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'

@@ -2,15 +2,16 @@
 
 package avila.domingo.pdf417.camera
 
-import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.Camera
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
+import avila.domingo.pdf417.camera.model.CameraImage
 import avila.domingo.pdf417.domain.ICamera
 import avila.domingo.pdf417.domain.model.Image
+import avila.domingo.pdf417.domain.model.mapper.Mapper
 import io.reactivex.Observable
 import java.lang.Math.abs
 import java.util.*
@@ -18,10 +19,11 @@ import java.util.*
 class CameraImp(
     private val windowManager: WindowManager,
     private val imageInterval: Long,
+    private val cameraMapper: Mapper<CameraImage, Image>,
     surfaceView: SurfaceView
 ) : ICamera {
 
-    private var rxImage: (ByteArray, Int, Int, Int) -> Unit = { _, _, _, _ -> }
+    private var rxImage: (ByteArray, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> }
 
     private var camera: Camera? = null
     private val cameraInfo = Camera.CameraInfo()
@@ -105,8 +107,6 @@ class CameraImp(
 //                                }
 //                            }
 
-                        //customParameters.previewFormat = ImageFormat.JPEG
-
                         parameters = customParameters
                         startPreview()
                         cameraTimer = Timer()
@@ -118,6 +118,7 @@ class CameraImp(
                                             val previewSize = camera.parameters.previewSize
                                             rxImage.invoke(
                                                 data,
+                                                camera.parameters.previewFormat,
                                                 previewSize.width,
                                                 previewSize.height,
                                                 rotationDegrees()
@@ -170,8 +171,8 @@ class CameraImp(
     }
 
     override fun images(): Observable<Image> = Observable.create {
-        rxImage = { data, widht, heigh, degree ->
-            it.onNext(Image(data, widht, heigh, degree))
+        rxImage = { data, format, widht, heigh, degree ->
+            it.onNext(cameraMapper.map(CameraImage(data, format, widht, heigh, degree)))
         }
     }
 

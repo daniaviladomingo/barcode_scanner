@@ -17,8 +17,11 @@ class AppApplication : Application() {
                 activityModule,
                 viewModelModule,
                 useCaseModule,
+                managerModule,
+                decoderModule,
                 cameraModule,
-                scheduleModule
+                scheduleModule,
+                mapperModule
             )
         }
     }
