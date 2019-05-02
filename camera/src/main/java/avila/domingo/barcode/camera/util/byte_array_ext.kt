@@ -1,4 +1,4 @@
-package communication.hardware.clean.util
+package avila.domingo.barcode.camera.util
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
