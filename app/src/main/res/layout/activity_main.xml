@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="avila.domingo.pdf417.ui.MainActivity">
+        tools:context="avila.domingo.barcode.avila.domingo.barcode.ui.MainActivity">
 
     <FrameLayout
             android:id="@+id/surface_view"

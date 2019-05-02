@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "avila.domingo.pdf417_reader"
+        applicationId "avila.domingo.barcode_reader"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
@@ -56,5 +56,5 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-alpha05'
 }
