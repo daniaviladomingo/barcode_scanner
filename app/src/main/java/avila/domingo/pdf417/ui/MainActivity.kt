@@ -39,7 +39,7 @@ class MainActivity : BaseActivity() {
                 managementResourceState(status, message)
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
-                        Log.d("ccc", "image")
+                        Log.d("ccc", "${width}x$height")
                     }
                 }
             }

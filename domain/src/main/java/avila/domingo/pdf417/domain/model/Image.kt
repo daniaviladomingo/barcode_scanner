@@ -1,7 +1,9 @@
 package avila.domingo.pdf417.domain.model
 
 data class Image(
-    val picture: ByteArray,
+    val image: ByteArray,
+    val width: Int,
+    val height: Int,
     val degrees: Int
 ) {
     override fun equals(other: Any?): Boolean {
@@ -10,14 +12,14 @@ data class Image(
 
         other as Image
 
-        if (!picture.contentEquals(other.picture)) return false
+        if (!image.contentEquals(other.image)) return false
         if (degrees != other.degrees) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = picture.contentHashCode()
+        var result = image.contentHashCode()
         result = 31 * result + degrees
         return result
     }
