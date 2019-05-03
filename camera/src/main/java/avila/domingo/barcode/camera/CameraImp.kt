@@ -4,6 +4,7 @@ package avila.domingo.barcode.camera
 
 import android.graphics.Point
 import android.hardware.Camera
+import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -130,14 +131,14 @@ class CameraImp(
     }
 
     override fun images(): Observable<Image> = Observable.interval(period, timeUnit).flatMap {
-        println("Interval")
+        Log.d("ccc","Interval")
         Observable.create<Image> {
             camera?.autoFocus { b, camera ->
-                println("autoFocus $b")
+                Log.d("ccc","autoFocus $b")
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
-                        println("setOneShotPreviewCallback")
+                        Log.d("ccc","setOneShotPreviewCallback")
                         it.onNext(
                             cameraMapper.map(
                                 CameraImage(
