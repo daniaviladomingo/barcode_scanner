@@ -19,20 +19,16 @@ class BarCodeDecoderImp(
             val result = mapper.map(
                 reader.decode(
                     BinaryBitmap(
-                        HybridBinarizer(
-                            RGBLuminanceSource(
-                                image.width,
-                                image.height,
-                                image.pixels
-                            )
-                        )
+                        HybridBinarizer(RGBLuminanceSource(image.width, image.height, image.pixels))
                     ), hints
                 )
             )
-            println("time: ${time - System.currentTimeMillis()}")
+            println("time: ${System.currentTimeMillis() - time}")
 
             it.onSuccess(result)
         } catch (e: Exception) {
+            e.printStackTrace()
+            println(e.localizedMessage)
             it.onSuccess("")
         }
     }

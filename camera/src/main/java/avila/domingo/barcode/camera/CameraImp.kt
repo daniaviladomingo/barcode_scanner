@@ -130,11 +130,14 @@ class CameraImp(
     }
 
     override fun images(): Observable<Image> = Observable.interval(period, timeUnit).flatMap {
+        println("Interval")
         Observable.create<Image> {
             camera?.autoFocus { b, camera ->
+                println("autoFocus $b")
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
+                        println("setOneShotPreviewCallback")
                         it.onNext(
                             cameraMapper.map(
                                 CameraImage(

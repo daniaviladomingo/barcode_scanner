@@ -52,7 +52,8 @@ class MainActivity : BaseActivity() {
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
                         Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT).show()
-                        Log.d("ccc", "Leo: $this")
+                        println("leo: $this <-")
+
                     }
                 }
             }
