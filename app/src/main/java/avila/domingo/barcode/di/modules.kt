@@ -14,6 +14,7 @@ import avila.domingo.barcode.di.qualifiers.ForApplication
 import avila.domingo.barcode.domain.IBarCodeDecoder
 import avila.domingo.barcode.domain.IBarCodeManager
 import avila.domingo.barcode.domain.ICamera
+import avila.domingo.barcode.domain.interactor.BarCodeReaderUseCase
 import avila.domingo.barcode.domain.interactor.TakeImagesUseCase
 import avila.domingo.barcode.manager.BarCodeManagerImp
 import avila.domingo.barcode.schedulers.IScheduleProvider
@@ -44,12 +45,12 @@ val viewModelModule = module {
 }
 
 val useCaseModule = module {
-    factory { TakeImagesUseCase(get()) }
-//    factory { BarCodeReaderUseCase(get()) }
+//    factory { TakeImagesUseCase(get()) }
+    factory { BarCodeReaderUseCase(get()) }
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -57,7 +58,8 @@ val cameraModule = module {
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
     }
-    single { TimeUnit.SECONDS.toMillis(2) }
+    single { 2L }
+    single { TimeUnit.SECONDS }
 }
 
 val decoderModule = module {

@@ -14,21 +14,24 @@ class BarCodeDecoderImp(
 ) : IBarCodeDecoder {
     override fun decode(image: Image): Single<String> = Single.create {
         try {
-            it.onSuccess(
-                mapper.map(
-                    reader.decode(
-                        BinaryBitmap(
-                            HybridBinarizer(
-                                RGBLuminanceSource(
-                                    image.width,
-                                    image.height,
-                                    image.pixels
-                                )
+            val time = System.currentTimeMillis()
+            println("decode")
+            val result = mapper.map(
+                reader.decode(
+                    BinaryBitmap(
+                        HybridBinarizer(
+                            RGBLuminanceSource(
+                                image.width,
+                                image.height,
+                                image.pixels
                             )
-                        ), hints
-                    )
+                        )
+                    ), hints
                 )
             )
+            println("time: ${time - System.currentTimeMillis()}")
+
+            it.onSuccess(result)
         } catch (e: Exception) {
             it.onSuccess("")
         }

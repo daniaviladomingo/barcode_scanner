@@ -3,7 +3,6 @@ package avila.domingo.barcode.decoder.mapper
 import avila.domingo.barcode.domain.model.mapper.Mapper
 import com.google.zxing.Result
 
-
 class ResultMapper: Mapper<Result, String>() {
     override fun map(model: Result): String = model.text
 

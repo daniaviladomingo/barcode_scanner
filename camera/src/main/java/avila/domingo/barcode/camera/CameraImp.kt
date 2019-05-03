@@ -4,7 +4,6 @@ package avila.domingo.barcode.camera
 
 import android.graphics.Point
 import android.hardware.Camera
-import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -16,134 +15,92 @@ import avila.domingo.barcode.domain.model.Image
 import io.reactivex.Observable
 import java.lang.Math.abs
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class CameraImp(
     private val windowManager: WindowManager,
-    private val imageInterval: Long,
+    private val period: Long,
+    private val timeUnit: TimeUnit,
     private val cameraMapper: AllImageMapper,
     surfaceView: SurfaceView
 ) : ICamera {
-
-    private var rxImage: (ByteArray, Int, Int, Int, Int) -> Unit = { _, _, _, _, _ -> }
-
     private var camera: Camera? = null
     private val cameraInfo = Camera.CameraInfo()
 
     private val screenSize = screenSize()
 
+    private var cameraTimer: Timer? = null
+
     init {
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            private var cameraTimer: Timer? = null
-
             override fun surfaceCreated(holder: SurfaceHolder) {
-                try {
-                    camera = Camera.open(0)
-                    camera?.setPreviewDisplay(holder)
-                } catch (e: Exception) {
-                }
+                initCamera(holder)
             }
 
             override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                try {
-                    camera?.run {
-                        val customParameters = parameters
-//                        customParameters.supportedFocusModes.run {
-//                            when {
-//                                this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) -> customParameters.focusMode =
-//                                    Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-//                                this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO) -> customParameters.focusMode =
-//                                    Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
-//                                this.contains(Camera.Parameters.FOCUS_MODE_AUTO) -> customParameters.focusMode =
-//                                    Camera.Parameters.FOCUS_MODE_AUTO
-//                            }
-//                        }
-
-                        val screenRatio = screenSize.witdh / screenSize.height.toFloat()
-
-                        var diff = Float.MAX_VALUE
-                        var previewWidth = 0
-                        var previewHeight = 0
-
-                        customParameters.supportedPreviewSizes
-                            .sortedBy { it.width }
-                            .apply {
-                                this.forEach {
-                                    val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
-                                    if (previewDiff < diff) {
-                                        diff = previewDiff
-                                        previewWidth = it.width
-                                        previewHeight = it.height
-                                    }
-                                }
-                            }
-                            .filter { screenRatio == (it.width / it.height.toFloat()) }
-                            .run {
-                                if (size > 0) {
-                                    get(0).let { customParameters.setPreviewSize(it.width, it.height) }
-                                } else {
-                                    customParameters.setPreviewSize(previewWidth, previewHeight)
-                                }
-                            }
-
-//                        diff = Float.MAX_VALUE
-//
-//                        customParameters.supportedPictureSizes
-//                            .sortedByDescending { it.width }
-//                            .apply {
-//                                this.forEach {
-//                                    val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
-//                                    if (previewDiff < diff) {
-//                                        diff = previewDiff
-//                                        previewWidth = it.width
-//                                        previewHeight = it.height
-//                                    }
-//                                }
-//                            }
-//                            .filter { screenRatio == (it.width / it.height.toFloat()) }
-//                            .run {
-//                                if (size > 0) {
-//                                    get(0).run { customParameters.setPictureSize(width, height) }
-//                                } else {
-//                                    customParameters.setPictureSize(previewWidth, previewHeight)
-//                                }
-//                            }
-
-                        parameters = customParameters
-                        startPreview()
-                        cameraTimer = Timer()
-                        cameraTimer?.schedule(object : TimerTask() {
-                            override fun run() {
-                                camera?.run {
-                                    autoFocus { b, camera ->
-                                        if (b) camera.setOneShotPreviewCallback { data, _ ->
-                                            val previewSize = camera.parameters.previewSize
-                                            Log.d("ccc", "tomo captura")
-                                            rxImage.invoke(
-                                                data,
-                                                camera.parameters.previewFormat,
-                                                previewSize.width,
-                                                previewSize.height,
-                                                rotationDegrees()
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }, 100, imageInterval)
-                    }
-                } catch (e: Exception) {
-                }
+                configCamera()
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                cameraTimer?.cancel()
-                cameraTimer?.purge()
-                cameraTimer = null
-                camera?.stopPreview()
-                camera?.release()
-                camera = null
+                releaseCamera()
             }
         })
+    }
+
+    private fun initCamera(holder: SurfaceHolder) {
+        try {
+            camera = Camera.open(0)
+            camera?.setPreviewDisplay(holder)
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun configCamera() {
+        try {
+            camera?.run {
+                val customParameters = parameters
+
+                val screenRatio = screenSize.witdh / screenSize.height.toFloat()
+
+                var diff = Float.MAX_VALUE
+                var previewWidth = 0
+                var previewHeight = 0
+
+                customParameters.supportedPreviewSizes
+                    .sortedByDescending { it.width }
+                    .apply {
+                        this.forEach {
+                            val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
+                            if (previewDiff < diff) {
+                                diff = previewDiff
+                                previewWidth = it.width
+                                previewHeight = it.height
+                            }
+                        }
+                    }
+                    .filter { screenRatio == (it.width / it.height.toFloat()) }
+                    .run {
+                        if (size > 0) {
+                            get(0).let { customParameters.setPreviewSize(it.width, it.height) }
+                        } else {
+                            customParameters.setPreviewSize(previewWidth, previewHeight)
+                        }
+                    }
+
+                parameters = customParameters
+                startPreview()
+            }
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun releaseCamera() {
+        cameraTimer?.cancel()
+        cameraTimer?.purge()
+        cameraTimer = null
+        camera?.stopPreview()
+        camera?.release()
+        camera = null
     }
 
     private fun screenSize(): Size =
@@ -172,10 +129,26 @@ class CameraImp(
         return (cameraInfo.orientation + rotationDegrees) % 360
     }
 
-    override fun images(): Observable<Image> = Observable.create {
-        rxImage = { data, format, widht, heigh, degree ->
-            Log.d("ccc", "voy a enviar captura")
-            it.onNext(cameraMapper.map(CameraImage(data, format, widht, heigh, degree)))
+    override fun images(): Observable<Image> = Observable.interval(period, timeUnit).flatMap {
+        Observable.create<Image> {
+            camera?.autoFocus { b, camera ->
+                if (b) {
+                    camera.setOneShotPreviewCallback { data, _ ->
+                        val previewSize = camera.parameters.previewSize
+                        it.onNext(
+                            cameraMapper.map(
+                                CameraImage(
+                                    data,
+                                    camera.parameters.previewFormat,
+                                    previewSize.width,
+                                    previewSize.height,
+                                    rotationDegrees()
+                                )
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 

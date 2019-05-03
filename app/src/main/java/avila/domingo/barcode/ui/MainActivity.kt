@@ -3,6 +3,7 @@ package avila.domingo.barcode.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.SurfaceView
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import avila.domingo.barcode.R
 import avila.domingo.barcode.base.BaseActivity
@@ -20,7 +21,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         setListener()
-        mainActivityViewModel.images()
+        mainActivityViewModel.read()
     }
 
     override fun onResume() {
@@ -34,12 +35,24 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setListener() {
-        mainActivityViewModel.imagesLiveData.observe(this, Observer { resource ->
+//        mainActivityViewModel.imagesLiveData.observe(this, Observer { resource ->
+//            resource?.run {
+//                managementResourceState(status, message)
+//                if (status == ResourceState.SUCCESS) {
+//                    data?.run {
+//                        Log.d("ccc", "${width}x$height ${pixels.size}")
+//                    }
+//                }
+//            }
+//        })
+
+        mainActivityViewModel.barcodeLiveData.observe(this, Observer { resource ->
             resource?.run {
                 managementResourceState(status, message)
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
-                        Log.d("ccc", "${width}x$height ${pixels.size}")
+                        Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT).show()
+                        Log.d("ccc", "Leo: $this")
                     }
                 }
             }
