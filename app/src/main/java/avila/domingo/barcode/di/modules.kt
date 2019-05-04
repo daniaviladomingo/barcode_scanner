@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import avila.domingo.barcode.camera.CameraImp
-import avila.domingo.barcode.camera.model.mapper.ThirdImageMapper
+import avila.domingo.barcode.camera.model.mapper.ImageMapper
 import avila.domingo.barcode.decoder.BarCodeDecoderImp
 import avila.domingo.barcode.decoder.mapper.BinaryBitmapMapper
 import avila.domingo.barcode.decoder.mapper.ResultMapper
@@ -45,7 +45,6 @@ val viewModelModule = module {
 }
 
 val useCaseModule = module {
-    //    factory { TakeImagesUseCase(get()) }
     factory { BarCodeReaderUseCase(get()) }
 }
 
@@ -85,6 +84,6 @@ val scheduleModule = module {
 
 val mapperModule = module {
     single { ResultMapper() }
-    single { ThirdImageMapper() }
+    single { ImageMapper() }
     single { BinaryBitmapMapper() }
 }

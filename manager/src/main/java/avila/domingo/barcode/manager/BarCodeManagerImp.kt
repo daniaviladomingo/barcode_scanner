@@ -13,6 +13,8 @@ class BarCodeManagerImp(
     private val timeUnit: TimeUnit
 ) : IBarCodeManager {
     override fun read(): Observable<String> = Observable.interval(period, timeUnit).flatMap {
-        camera.getImage().toObservable().flatMap { decoder.decode(it).toObservable() }
+        camera.getImage().toObservable().flatMap {
+            decoder.decode(it).toObservable()
+        }
     }
 }

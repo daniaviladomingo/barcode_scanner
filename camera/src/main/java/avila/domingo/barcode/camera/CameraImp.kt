@@ -10,7 +10,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
 import avila.domingo.barcode.camera.model.CameraImage
-import avila.domingo.barcode.camera.model.mapper.ThirdImageMapper
+import avila.domingo.barcode.camera.model.mapper.ImageMapper
 import avila.domingo.barcode.domain.ICamera
 import avila.domingo.barcode.domain.model.YUVImage
 import io.reactivex.Single
@@ -19,7 +19,7 @@ import java.util.*
 
 class CameraImp(
     private val windowManager: WindowManager,
-    private val cameraMapper: ThirdImageMapper,
+    private val imageMapper: ImageMapper,
     surfaceView: SurfaceView
 ) : ICamera {
     private var camera: Camera? = null
@@ -147,7 +147,7 @@ class CameraImp(
                         val previewSize = camera.parameters.previewSize
                         Log.d("ccc", "setOneShotPreviewCallback")
                         it.onSuccess(
-                            cameraMapper.map(
+                            imageMapper.map(
                                 CameraImage(
                                     data,
                                     camera.parameters.previewFormat,
