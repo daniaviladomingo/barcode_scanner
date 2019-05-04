@@ -7,6 +7,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import avila.domingo.barcode.camera.CameraImp
 import avila.domingo.barcode.camera.model.mapper.AllImageMapper
+import avila.domingo.barcode.camera.model.mapper.ThirdImageMapper
 import avila.domingo.barcode.decoder.BarCodeDecoderImp
 import avila.domingo.barcode.decoder.mapper.ResultMapper
 import avila.domingo.barcode.di.qualifiers.ForActivity
@@ -85,5 +86,5 @@ val scheduleModule = module {
 
 val mapperModule = module {
     single { ResultMapper() }
-    single { AllImageMapper() }
+    single { ThirdImageMapper() }
 }

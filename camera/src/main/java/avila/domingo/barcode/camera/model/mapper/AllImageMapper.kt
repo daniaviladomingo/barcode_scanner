@@ -20,7 +20,7 @@ class AllImageMapper : Mapper<CameraImage, Image>() {
         val pixels = IntArray(bitmap.width * bitmap.height)
         bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         Log.d("ttt", "Time: ${System.currentTimeMillis()- time}")
-        Image(pixels, width, height)
+        Image(pixels, bitmap.width, bitmap.height)
     }
 
     override fun inverseMap(model: Image): CameraImage {
