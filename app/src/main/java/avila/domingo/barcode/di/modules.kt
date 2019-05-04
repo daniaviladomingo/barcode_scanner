@@ -74,7 +74,7 @@ val decoderModule = module {
 
 val managerModule = module {
     single<IBarCodeManager> { BarCodeManagerImp(get(), get(), get(), get()) }
-    single { 10L }
+    single { 2L }
     single { TimeUnit.SECONDS }
 }
 

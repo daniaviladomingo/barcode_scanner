@@ -8,7 +8,21 @@ import com.google.zxing.common.HybridBinarizer
 
 class BinaryBitmapMapper : Mapper<YUVImage, BinaryBitmap>() {
     override fun map(model: YUVImage): BinaryBitmap = model.run {
-        BinaryBitmap(HybridBinarizer(PlanarYUVLuminanceSource(data, width, height, 0, 0, width, height, false)))
+        val third = height / 3
+        BinaryBitmap(
+            HybridBinarizer(
+                PlanarYUVLuminanceSource(
+                    data,
+                    width,
+                    height,
+                    0,
+                    third,
+                    width,
+                    height - third,
+                    false
+                )
+            )
+        )
     }
 
     override fun inverseMap(model: BinaryBitmap): YUVImage {

@@ -1,8 +1,9 @@
 package avila.domingo.barcode.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.SurfaceView
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import avila.domingo.barcode.R
@@ -11,6 +12,7 @@ import avila.domingo.barcode.ui.data.ResourceState
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
+
 
 class MainActivity : BaseActivity() {
     private val surfaceView: SurfaceView by inject()
@@ -22,6 +24,14 @@ class MainActivity : BaseActivity() {
 
         setListener()
         mainActivityViewModel.read()
+
+        AlphaAnimation(0.0f, 1.0f).run {
+            duration = 500
+            startOffset = 20
+            repeatMode = Animation.REVERSE
+            repeatCount = Animation.INFINITE
+            scanner_line.startAnimation(this)
+        }
     }
 
     override fun onResume() {
@@ -35,17 +45,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setListener() {
-//        mainActivityViewModel.imagesLiveData.observe(this, Observer { resource ->
-//            resource?.run {
-//                managementResourceState(status, message)
-//                if (status == ResourceState.SUCCESS) {
-//                    data?.run {
-//                        Log.d("ccc", "${width}x$height ${pixels.size}")
-//                    }
-//                }
-//            }
-//        })
-
         mainActivityViewModel.barcodeLiveData.observe(this, Observer { resource ->
             resource?.run {
                 managementResourceState(status, message)

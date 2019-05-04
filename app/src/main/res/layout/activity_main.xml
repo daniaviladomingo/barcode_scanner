@@ -12,4 +12,36 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <View
+                android:background="@color/translucent"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"/>
+
+        <View
+                android:layout_width="match_parent"
+                android:background="@android:color/transparent"
+                android:layout_weight="1"
+                android:layout_height="0dp"/>
+
+        <View
+                android:background="@color/translucent"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="0dp"/>
+
+    </LinearLayout>
+
+    <View
+            android:id="@+id/scanner_line"
+            android:layout_width="match_parent"
+            android:background="@color/linearScan"
+            android:layout_height="1dp"
+            android:layout_centerVertical="true"/>
+
 </RelativeLayout>
