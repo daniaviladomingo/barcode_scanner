@@ -1,7 +1,7 @@
 package avila.domingo.barcode.domain.model
 
-data class Image(
-    val pixels: IntArray,
+data class YUVImage(
+    val data: ByteArray,
     val width: Int,
     val height: Int
 ) {
@@ -9,9 +9,9 @@ data class Image(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Image
+        other as YUVImage
 
-        if (!pixels.contentEquals(other.pixels)) return false
+        if (!data.contentEquals(other.data)) return false
         if (width != other.width) return false
         if (height != other.height) return false
 
@@ -19,7 +19,7 @@ data class Image(
     }
 
     override fun hashCode(): Int {
-        var result = pixels.contentHashCode()
+        var result = data.contentHashCode()
         result = 31 * result + width
         result = 31 * result + height
         return result

@@ -1,15 +1,10 @@
 package avila.domingo.barcode.ui
 
-import android.util.Log
 import avila.domingo.barcode.base.BaseViewModel
 import avila.domingo.barcode.domain.interactor.BarCodeReaderUseCase
-import avila.domingo.barcode.domain.interactor.TakeImagesUseCase
-import avila.domingo.barcode.domain.model.Image
 import avila.domingo.barcode.schedulers.IScheduleProvider
 import avila.domingo.barcode.ui.data.Resource
 import avila.domingo.barcode.util.SingleLiveEvent
-import io.reactivex.Observable
-import java.util.concurrent.TimeUnit
 
 class MainActivityViewModel(
 //    private val imagesUseCase: TakeImagesUseCase,
@@ -17,7 +12,7 @@ class MainActivityViewModel(
     private val scheduleProvider: IScheduleProvider
 ) : BaseViewModel() {
 
-//    val imagesLiveData = SingleLiveEvent<Resource<Image>>()
+//    val imagesLiveData = SingleLiveEvent<Resource<YUVImage>>()
     val barcodeLiveData = SingleLiveEvent<Resource<String>>()
 
 //    fun images() {

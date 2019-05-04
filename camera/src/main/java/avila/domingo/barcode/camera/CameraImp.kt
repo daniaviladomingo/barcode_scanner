@@ -12,7 +12,7 @@ import android.view.WindowManager
 import avila.domingo.barcode.camera.model.CameraImage
 import avila.domingo.barcode.camera.model.mapper.ThirdImageMapper
 import avila.domingo.barcode.domain.ICamera
-import avila.domingo.barcode.domain.model.Image
+import avila.domingo.barcode.domain.model.YUVImage
 import io.reactivex.Single
 import java.lang.Math.abs
 import java.util.*
@@ -138,8 +138,8 @@ class CameraImp(
         return (cameraInfo.orientation + rotationDegrees) % 360
     }
 
-    override fun getImage(): Single<Image> =
-        Single.create<Image> {
+    override fun getImage(): Single<YUVImage> =
+        Single.create<YUVImage> {
             camera?.autoFocus { b, camera ->
                 Log.d("ccc", "autoFocus $b, format: ${camera.parameters.previewFormat}")
                 if (b) {
