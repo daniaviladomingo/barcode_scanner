@@ -13,15 +13,12 @@ import avila.domingo.barcode.camera.model.CameraImage
 import avila.domingo.barcode.camera.model.mapper.AllImageMapper
 import avila.domingo.barcode.domain.ICamera
 import avila.domingo.barcode.domain.model.Image
-import io.reactivex.Observable
+import io.reactivex.Single
 import java.lang.Math.abs
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class CameraImp(
     private val windowManager: WindowManager,
-    private val period: Long,
-    private val timeUnit: TimeUnit,
     private val cameraMapper: AllImageMapper,
     surfaceView: SurfaceView
 ) : ICamera {
@@ -67,10 +64,21 @@ class CameraImp(
                 var previewWidth = 0
                 var previewHeight = 0
 
+                Log.d("lll", "Preview supported format")
+                customParameters.supportedPreviewFormats.forEach {
+
+                }
+
+                Log.d("lll", "Picture supported format")
+                customParameters.supportedPictureFormats.forEach {
+
+                }
+
                 customParameters.supportedPreviewSizes
                     .sortedByDescending { it.width }
                     .apply {
                         this.forEach {
+                            Log.d("lll", "${it.width}x${it.height}")
                             val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
                             if (previewDiff < diff) {
                                 diff = previewDiff
@@ -130,16 +138,15 @@ class CameraImp(
         return (cameraInfo.orientation + rotationDegrees) % 360
     }
 
-    override fun images(): Observable<Image> = Observable.interval(period, timeUnit).flatMap {
-        Log.d("ccc","Interval")
-        Observable.create<Image> {
+    override fun getImage(): Single<Image> =
+        Single.create<Image> {
             camera?.autoFocus { b, camera ->
-                Log.d("ccc","autoFocus $b")
+                Log.d("ccc", "autoFocus $b, format: ${camera.parameters.previewFormat}")
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
-                        Log.d("ccc","setOneShotPreviewCallback")
-                        it.onNext(
+                        Log.d("ccc", "setOneShotPreviewCallback")
+                        it.onSuccess(
                             cameraMapper.map(
                                 CameraImage(
                                     data,
@@ -154,7 +161,6 @@ class CameraImp(
                 }
             }
         }
-    }
 
     internal data class Size(val witdh: Int, val height: Int)
 }

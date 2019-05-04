@@ -17,7 +17,7 @@ class AllImageMapper : Mapper<CameraImage, Image>() {
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         val pixels = IntArray(bitmap.width * bitmap.height)
         bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        Image(pixels,width,height)
+        Image(pixels, width, height)
 
     }
 

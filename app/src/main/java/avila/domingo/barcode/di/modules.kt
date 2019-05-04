@@ -50,7 +50,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -58,8 +58,6 @@ val cameraModule = module {
                 ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
     }
-    single { 2L }
-    single { TimeUnit.SECONDS }
 }
 
 val decoderModule = module {
@@ -76,7 +74,9 @@ val decoderModule = module {
 }
 
 val managerModule = module {
-    single<IBarCodeManager> { BarCodeManagerImp(get(), get()) }
+    single<IBarCodeManager> { BarCodeManagerImp(get(), get(), get(), get()) }
+    single { 10L }
+    single { TimeUnit.SECONDS }
 }
 
 val scheduleModule = module {
