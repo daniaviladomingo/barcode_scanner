@@ -6,7 +6,7 @@ App Barcode Scanner using [zxing](https://github.com/zxing/zxing) library and na
 
 ### Architecture
 
-Clean Architecture, app core have 3 modules:
+Clean Architecture, app core has 3 modules:
 
 - camera: configure & init native camera, take a simple image preview (NV21 format) and convert to YUV image
 - decoder: use com.google.zxing.Reader (PDF417Reader, QRCodeReader...) interfaz to read barcode into YUV image taken by camera
