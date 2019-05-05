@@ -13,11 +13,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
-
 class MainActivity : BaseActivity() {
     private val surfaceView: SurfaceView by inject()
 
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
+
+    private var toast: Toast? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +51,8 @@ class MainActivity : BaseActivity() {
                 managementResourceState(status, message)
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
-                        Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT).show()
-                        println("leo: $this <-")
-
+                        toast?.cancel()
+                        toast = Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT).apply { show() }
                     }
                 }
             }

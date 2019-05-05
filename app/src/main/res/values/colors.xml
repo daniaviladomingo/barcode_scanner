@@ -4,6 +4,6 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="translucent">#55000000</color>
+    <color name="translucent">#66000000</color>
     <color name="linearScan">#FF0000</color>
 </resources>

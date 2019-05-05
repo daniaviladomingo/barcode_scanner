@@ -15,16 +15,9 @@ class BarCodeDecoderImp(
     private val binaryBitmapMapper: BinaryBitmapMapper
 ) : IBarCodeDecoder {
     override fun decode(image: YUVImage): Single<String> = Single.create {
-        println("decode")
-        val time = System.currentTimeMillis()
         try {
-            val result = resultMapper.map(reader.decode(binaryBitmapMapper.map(image), hints))
-            it.onSuccess(result)
+            it.onSuccess(resultMapper.map(reader.decode(binaryBitmapMapper.map(image), hints)))
         } catch (e: Exception) {
-            e.printStackTrace()
-            println(e.localizedMessage)
-            it.onSuccess("")
         }
-        println("time: ${System.currentTimeMillis() - time}")
     }
 }

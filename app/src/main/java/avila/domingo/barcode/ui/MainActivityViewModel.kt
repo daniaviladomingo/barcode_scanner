@@ -14,14 +14,13 @@ class MainActivityViewModel(
     val barcodeLiveData = SingleLiveEvent<Resource<String>>()
 
     fun read() {
-        barcodeLiveData.value = Resource.loading()
         addDisposable(barCodeReaderUseCase.execute()
             .observeOn(scheduleProvider.ui())
             .subscribeOn(scheduleProvider.computation())
             .subscribe({ info ->
                 barcodeLiveData.value = Resource.success(info)
             }) {
-                barcodeLiveData.value = Resource.error(it.localizedMessage)
+                barcodeLiveData.value = Resource.success(it.localizedMessage)
             })
     }
 }

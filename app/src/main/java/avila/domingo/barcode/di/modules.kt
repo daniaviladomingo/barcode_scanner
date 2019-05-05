@@ -41,7 +41,7 @@ val activityModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { MainActivityViewModel(get(), get()/*, get()*/) }
+    viewModel { MainActivityViewModel(get(), get()) }
 }
 
 val useCaseModule = module {

@@ -4,7 +4,6 @@ package avila.domingo.barcode.camera
 
 import android.graphics.Point
 import android.hardware.Camera
-import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -64,21 +63,10 @@ class CameraImp(
                 var previewWidth = 0
                 var previewHeight = 0
 
-                Log.d("lll", "Preview supported format")
-                customParameters.supportedPreviewFormats.forEach {
-                    Log.d("lll", "$it")
-                }
-
-                Log.d("lll", "Picture supported format")
-                customParameters.supportedPictureFormats.forEach {
-                    Log.d("lll", "$it")
-                }
-
                 customParameters.supportedPreviewSizes
                     .sortedByDescending { it.width }
                     .apply {
                         this.forEach {
-                            Log.d("lll", "${it.width}x${it.height}")
                             val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
                             if (previewDiff < diff) {
                                 diff = previewDiff
@@ -141,11 +129,9 @@ class CameraImp(
     override fun getImage(): Single<YUVImage> =
         Single.create<YUVImage> {
             camera?.autoFocus { b, camera ->
-                Log.d("ccc", "autoFocus $b, format: ${camera.parameters.previewFormat}")
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
-                        Log.d("ccc", "setOneShotPreviewCallback")
                         it.onSuccess(
                             imageMapper.map(
                                 CameraImage(
