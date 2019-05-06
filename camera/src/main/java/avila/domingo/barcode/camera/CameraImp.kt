@@ -26,8 +26,6 @@ class CameraImp(
 
     private val screenSize = screenSize()
 
-    private var cameraTimer: Timer? = null
-
     init {
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
@@ -92,9 +90,6 @@ class CameraImp(
     }
 
     private fun releaseCamera() {
-        cameraTimer?.cancel()
-        cameraTimer?.purge()
-        cameraTimer = null
         camera?.stopPreview()
         camera?.release()
         camera = null
