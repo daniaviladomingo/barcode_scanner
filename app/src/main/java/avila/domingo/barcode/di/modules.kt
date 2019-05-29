@@ -64,7 +64,6 @@ val decoderModule = module {
     single<Map<DecodeHintType, *>> {
         mapOf(
             Pair(DecodeHintType.TRY_HARDER, true),
-            Pair(DecodeHintType.PURE_BARCODE, true),
             Pair(DecodeHintType.CHARACTER_SET, "ISO-8859-1"),
             Pair(DecodeHintType.POSSIBLE_FORMATS, listOf(BarcodeFormat.PDF_417))
         )
