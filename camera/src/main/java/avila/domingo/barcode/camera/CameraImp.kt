@@ -2,31 +2,28 @@
 
 package avila.domingo.barcode.camera
 
-import android.graphics.Point
+import android.graphics.YuvImage
 import android.hardware.Camera
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.WindowManager
-import avila.domingo.barcode.camera.model.CameraImage
-import avila.domingo.barcode.camera.model.mapper.ImageMapper
+import avila.domingo.barcode.camera.model.CameraId
 import avila.domingo.barcode.domain.ICamera
+import avila.domingo.barcode.domain.IScreen
 import avila.domingo.barcode.domain.model.YUVImage
 import io.reactivex.Single
-import java.lang.Math.abs
-import java.util.*
 
 class CameraImp(
-    private val windowManager: WindowManager,
-    private val imageMapper: ImageMapper,
+    private val cameraId: CameraId,
+    private val screen: IScreen,
     surfaceView: SurfaceView
 ) : ICamera {
+
     private var camera: Camera? = null
     private val cameraInfo = Camera.CameraInfo()
 
-    private val screenSize = screenSize()
-
     init {
+        Camera.getCameraInfo(cameraId.id, cameraInfo)
+
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
                 initCamera(holder)
@@ -44,7 +41,7 @@ class CameraImp(
 
     private fun initCamera(holder: SurfaceHolder) {
         try {
-            camera = Camera.open(0)
+            camera = Camera.open(cameraId.id)
             camera?.setPreviewDisplay(holder)
         } catch (e: Exception) {
         }
@@ -55,7 +52,7 @@ class CameraImp(
             camera?.run {
                 val customParameters = parameters
 
-                val screenRatio = screenSize.witdh / screenSize.height.toFloat()
+                val screenRatio = screen.getSize().width / screen.getSize().height.toFloat()
 
                 var diff = Float.MAX_VALUE
                 var previewWidth = 0
@@ -65,7 +62,7 @@ class CameraImp(
                     .sortedByDescending { it.width }
                     .apply {
                         this.forEach {
-                            val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
+                            val previewDiff = Math.abs((it.width / it.height.toFloat()) - screenRatio)
                             if (previewDiff < diff) {
                                 diff = previewDiff
                                 previewWidth = it.width
@@ -95,53 +92,29 @@ class CameraImp(
         camera = null
     }
 
-    private fun screenSize(): Size =
-        Point().apply { windowManager.defaultDisplay.getSize(this) }.let { point ->
-            if (point.x > point.y) {
-                Size(point.x, point.y)
-            } else {
-                Size(point.y, point.x)
-            }
-        }
-
-
-    private fun rotationDegrees(): Int {
-        var rotationDegrees = when (windowManager.defaultDisplay.rotation) {
-            Surface.ROTATION_90 -> 90
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_270 -> 270
-            Surface.ROTATION_0 -> 0
-            else -> 0
-        }
-
-        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            rotationDegrees = 360 - rotationDegrees
-        }
-
-        return (cameraInfo.orientation + rotationDegrees) % 360
-    }
-
     override fun getImage(): Single<YUVImage> =
         Single.create<YUVImage> {
             camera?.autoFocus { b, camera ->
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
+
                         it.onSuccess(
-                            imageMapper.map(
-                                CameraImage(
-                                    data,
-                                    camera.parameters.previewFormat,
-                                    previewSize.width,
-                                    previewSize.height,
-                                    rotationDegrees()
-                                )
-                            )
+                            YuvImage(data, camera.parameters.previewFormat, previewSize.width, previewSize.height, null).run {
+                                YUVImage(yuvData, width, height)
+                            }
                         )
                     }
                 }
             }
         }
 
-    internal data class Size(val witdh: Int, val height: Int)
+    private fun getFrameOrientation(): Int {
+        var rotation = screen.getRotationDegrees()
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            rotation = 360 - rotation
+        }
+        return (cameraInfo.orientation + rotation) % 360
+    }
+
 }

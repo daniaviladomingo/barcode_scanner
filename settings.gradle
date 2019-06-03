@@ -1,1 +1,1 @@
-include ':app', ':domain', ':camera', ':manager', ':decoder'
+include ':app', ':domain', ':camera', ':manager', ':decoder', ':screen'
