@@ -106,7 +106,7 @@ class CameraImp(
                         )
                     }
                 }
-            }
+            } ?: it.onError(Throwable("Error to open camera"))
         }
 
     private fun getFrameOrientation(): Int {
