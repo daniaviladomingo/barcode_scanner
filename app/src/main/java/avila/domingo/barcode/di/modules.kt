@@ -5,7 +5,7 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import avila.domingo.barcode.camera.CameraImp
+import avila.domingo.barcode.camera.CameraImp2
 import avila.domingo.barcode.camera.model.mapper.ImageMapper
 import avila.domingo.barcode.decoder.BarCodeDecoderImp
 import avila.domingo.barcode.decoder.mapper.BinaryBitmapMapper
@@ -49,7 +49,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get()) }
+    factory<ICamera> { CameraImp2(get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {

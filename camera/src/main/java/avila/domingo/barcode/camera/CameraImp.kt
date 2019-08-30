@@ -2,128 +2,58 @@
 
 package avila.domingo.barcode.camera
 
-import android.graphics.Point
 import android.hardware.Camera
-import android.view.Surface
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.WindowManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import avila.domingo.barcode.camera.model.CameraImage
-import avila.domingo.barcode.camera.model.mapper.ImageMapper
 import avila.domingo.barcode.domain.ICamera
+import avila.domingo.barcode.domain.model.CameraSide
 import avila.domingo.barcode.domain.model.YUVImage
 import io.reactivex.Single
-import java.lang.Math.abs
-import java.util.*
 
 class CameraImp(
-    private val windowManager: WindowManager,
-    private val imageMapper: ImageMapper,
-    surfaceView: SurfaceView
-) : ICamera {
-    private var camera: Camera? = null
-    private val cameraInfo = Camera.CameraInfo()
+    nativeCamera: NativeCamera,
+    private val cameraRotationUtil: CameraRotationUtil,
+    private val surfaceView: SurfaceView,
+    initialCameraSide: CameraSide,
+    lifecycle: Lifecycle // Esto es simplemente para start/stop la preview cuando la activity sale/entre en segundo plano
+) : ICamera, LifecycleObserver {
 
-    private val screenSize = screenSize()
+    private val tag = this::class.java.name
+
+    private var currentCameraSide = initialCameraSide
+    private var currentCamera: Camera? = null
 
     init {
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                initCamera(holder)
-            }
+        lifecycle.addObserver(this)
 
+        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                configCamera()
+                Log.d(tag, "CALLBACK: surfaceChanged")
+//                currentCamera?.startPreview()
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                releaseCamera()
+                Log.d(tag, "CALLBACK: surfaceDestroyed")
+//                currentCamera?.stopPreview()
+            }
+
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                Log.d(tag, "CALLBACK: surfaceCreated")
+                currentCamera?.setPreviewDisplay(holder)
             }
         })
-    }
 
-    private fun initCamera(holder: SurfaceHolder) {
-        try {
-            camera = Camera.open(0)
-            camera?.setPreviewDisplay(holder)
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun configCamera() {
-        try {
-            camera?.run {
-                val customParameters = parameters
-
-                val screenRatio = screenSize.witdh / screenSize.height.toFloat()
-
-                var diff = Float.MAX_VALUE
-                var previewWidth = 0
-                var previewHeight = 0
-
-                customParameters.supportedPreviewSizes
-                    .sortedByDescending { it.width }
-                    .apply {
-                        this.forEach {
-                            val previewDiff = abs((it.width / it.height.toFloat()) - screenRatio)
-                            if (previewDiff < diff) {
-                                diff = previewDiff
-                                previewWidth = it.width
-                                previewHeight = it.height
-                            }
-                        }
-                    }
-                    .filter { screenRatio == (it.width / it.height.toFloat()) }
-                    .run {
-                        if (size > 0) {
-                            get(0).let { customParameters.setPreviewSize(it.width, it.height) }
-                        } else {
-                            customParameters.setPreviewSize(previewWidth, previewHeight)
-                        }
-                    }
-
-                parameters = customParameters
-                startPreview()
-            }
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun releaseCamera() {
-        camera?.stopPreview()
-        camera?.release()
-        camera = null
-    }
-
-    private fun screenSize(): Size =
-        Point().apply { windowManager.defaultDisplay.getSize(this) }.let { point ->
-            if (point.x > point.y) {
-                Size(point.x, point.y)
-            } else {
-                Size(point.y, point.x)
-            }
-        }
-
-
-    private fun rotationDegrees(): Int {
-        var rotationDegrees = when (windowManager.defaultDisplay.rotation) {
-            Surface.ROTATION_90 -> 90
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_270 -> 270
-            Surface.ROTATION_0 -> 0
-            else -> 0
-        }
-
-        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            rotationDegrees = 360 - rotationDegrees
-        }
-
-        return (cameraInfo.orientation + rotationDegrees) % 360
+        currentCamera = nativeCamera.getCamera(initialCameraSide)
     }
 
     override fun getImage(): Single<YUVImage> =
         Single.create<YUVImage> {
-            camera?.autoFocus { b, camera ->
+            currentCamera?.autoFocus { b, camera ->
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
@@ -134,7 +64,7 @@ class CameraImp(
                                     camera.parameters.previewFormat,
                                     previewSize.width,
                                     previewSize.height,
-                                    rotationDegrees()
+                                    cameraRotationUtil.rotationDegrees(currentCameraSide)
                                 )
                             )
                         )
@@ -143,5 +73,24 @@ class CameraImp(
             }
         }
 
-    internal data class Size(val witdh: Int, val height: Int)
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun start() {
+        Log.d(tag, "start()")
+        currentCamera?.setPreviewDisplay(surfaceView.holder)
+        currentCamera?.startPreview()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun stop() {
+        Log.d(tag, "stop()")
+        currentCamera?.stopPreview()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun destroy() {
+        Log.d(tag, "destroy()")
+        currentCamera?.stopPreview()
+        currentCamera?.release()
+        currentCamera = null
+    }
 }
