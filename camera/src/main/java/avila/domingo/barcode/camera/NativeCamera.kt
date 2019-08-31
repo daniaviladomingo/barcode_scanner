@@ -3,12 +3,13 @@
 package avila.domingo.barcode.camera
 
 import android.hardware.Camera
+import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.domain.model.CameraSide
 import avila.domingo.barcode.domain.model.mapper.Mapper
 
 class NativeCamera(
     private val configureCamera: IConfigureCamera,
-    private val cameraSideMapper: Mapper<CameraSide, Int>
+    private val cameraSideMapper: CameraSideMapper
 ) {
     private var currentCamera: Camera? = null
     private var currentCameraSide: CameraSide? = null

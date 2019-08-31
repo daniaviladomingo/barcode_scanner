@@ -54,7 +54,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
+    factory <ICamera> { CameraImp(get(), get(), get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -66,13 +66,13 @@ val cameraModule = module {
         }
     }
 
-    factory<IConfigureCamera> { ConfigureCameraImp(get(), get()) }
+    single { NativeCamera(get(), get()) }
 
-    factory { NativeCamera(get(), get()) }
+    single<IConfigureCamera> { ConfigureCameraImp(get(), get()) }
 
-    factory { CameraRotationUtil(get(), get()) }
+    single { CameraRotationUtil(get(), get()) }
 
-    factory { CameraSide.BACK }
+    single { CameraSide.BACK }
 }
 
 val decoderModule = module {

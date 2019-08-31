@@ -3,15 +3,14 @@
 package avila.domingo.barcode.camera
 
 import android.hardware.Camera
-import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
+import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.domain.model.CameraSide
-import avila.domingo.barcode.domain.model.mapper.Mapper
 
 class CameraRotationUtil(
     private val windowManager: WindowManager,
-    private val cameraSideMapper: Mapper<CameraSide, Int>
+    private val cameraSideMapper: CameraSideMapper
 ) {
     fun rotationDegrees(cameraSide: CameraSide): Int {
         val cameraInfo = Camera.CameraInfo()
@@ -38,7 +37,5 @@ class CameraRotationUtil(
         Surface.ROTATION_180 -> 90
         Surface.ROTATION_270 -> 180
         else -> 0
-    }.apply {
-        Log.d("xxxx", "${windowManager.defaultDisplay.rotation}")
     }
 }
