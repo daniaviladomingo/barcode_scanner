@@ -1,13 +1,13 @@
 package avila.domingo.barcode.decoder.mapper
 
-import avila.domingo.barcode.domain.model.YUVImage
+import avila.domingo.barcode.domain.model.PreviewImage
 import avila.domingo.barcode.domain.model.mapper.Mapper
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 
-class BinaryBitmapMapper : Mapper<YUVImage, BinaryBitmap>() {
-    override fun map(model: YUVImage): BinaryBitmap = model.run {
+class BinaryBitmapMapper : Mapper<PreviewImage, BinaryBitmap>() {
+    override fun map(model: PreviewImage): BinaryBitmap = model.run {
         val third = height / 3
         BinaryBitmap(
             HybridBinarizer(
@@ -25,7 +25,7 @@ class BinaryBitmapMapper : Mapper<YUVImage, BinaryBitmap>() {
         )
     }
 
-    override fun inverseMap(model: BinaryBitmap): YUVImage {
+    override fun inverseMap(model: BinaryBitmap): PreviewImage {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

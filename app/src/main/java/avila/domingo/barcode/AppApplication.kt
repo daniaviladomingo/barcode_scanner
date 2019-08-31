@@ -21,7 +21,6 @@ class AppApplication : Application() {
                 decoderModule,
                 cameraModule,
                 scheduleModule,
-                screenModule,
                 mapperModule
             )
         }

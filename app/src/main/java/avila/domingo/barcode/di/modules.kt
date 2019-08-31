@@ -5,8 +5,12 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import avila.domingo.barcode.camera.CameraImp2
-import avila.domingo.barcode.camera.model.mapper.ImageMapper
+import avila.domingo.barcode.ConfigureCameraImp
+import avila.domingo.barcode.camera.CameraImp
+import avila.domingo.barcode.camera.CameraRotationUtil
+import avila.domingo.barcode.camera.IConfigureCamera
+import avila.domingo.barcode.camera.NativeCamera
+import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.decoder.BarCodeDecoderImp
 import avila.domingo.barcode.decoder.mapper.BinaryBitmapMapper
 import avila.domingo.barcode.decoder.mapper.ResultMapper
@@ -16,11 +20,11 @@ import avila.domingo.barcode.domain.IBarCodeDecoder
 import avila.domingo.barcode.domain.IBarCodeManager
 import avila.domingo.barcode.domain.ICamera
 import avila.domingo.barcode.domain.interactor.BarCodeReaderUseCase
+import avila.domingo.barcode.domain.model.CameraSide
 import avila.domingo.barcode.manager.BarCodeManagerImp
 import avila.domingo.barcode.schedulers.IScheduleProvider
 import avila.domingo.barcode.schedulers.ScheduleProviderImp
 import avila.domingo.barcode.ui.MainActivityViewModel
-import com.google.zxing.BarcodeFormat
 import com.google.zxing.DecodeHintType
 import com.google.zxing.Reader
 import com.google.zxing.pdf417.PDF417Reader
@@ -38,6 +42,7 @@ val activityModule = module {
     lateinit var activityReference: AppCompatActivity
     factory { (activity: AppCompatActivity) -> activityReference = activity }
     factory<Context>(ForActivity) { activityReference }
+    factory { activityReference.lifecycle }
 }
 
 val viewModelModule = module {
@@ -49,14 +54,25 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp2(get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
             layoutParams =
-                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
         }
     }
+
+    factory<IConfigureCamera> { ConfigureCameraImp(get(), get()) }
+
+    factory { NativeCamera(get(), get()) }
+
+    factory { CameraRotationUtil(get(), get()) }
+
+    factory { CameraSide.BACK }
 }
 
 val decoderModule = module {
@@ -65,8 +81,7 @@ val decoderModule = module {
         mapOf(
             Pair(DecodeHintType.TRY_HARDER, true),
             Pair(DecodeHintType.PURE_BARCODE, true),
-            Pair(DecodeHintType.CHARACTER_SET, "ISO-8859-1"),
-            Pair(DecodeHintType.POSSIBLE_FORMATS, listOf(BarcodeFormat.PDF_417))
+            Pair(DecodeHintType.CHARACTER_SET, "ISO-8859-1")
         )
     }
     single<Reader> { PDF417Reader() } // Change this for other barcode types
@@ -84,6 +99,6 @@ val scheduleModule = module {
 
 val mapperModule = module {
     single { ResultMapper() }
-    single { ImageMapper() }
     single { BinaryBitmapMapper() }
+    single { CameraSideMapper() }
 }

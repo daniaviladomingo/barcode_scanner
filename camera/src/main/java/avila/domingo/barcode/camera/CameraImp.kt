@@ -9,10 +9,9 @@ import android.view.SurfaceView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import avila.domingo.barcode.camera.model.CameraImage
 import avila.domingo.barcode.domain.ICamera
 import avila.domingo.barcode.domain.model.CameraSide
-import avila.domingo.barcode.domain.model.YUVImage
+import avila.domingo.barcode.domain.model.PreviewImage
 import io.reactivex.Single
 
 class CameraImp(
@@ -32,7 +31,12 @@ class CameraImp(
         lifecycle.addObserver(this)
 
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
                 Log.d(tag, "CALLBACK: surfaceChanged")
 //                currentCamera?.startPreview()
             }
@@ -51,21 +55,18 @@ class CameraImp(
         currentCamera = nativeCamera.getCamera(initialCameraSide)
     }
 
-    override fun getImage(): Single<YUVImage> =
-        Single.create<YUVImage> {
+    override fun getImage(): Single<PreviewImage> =
+        Single.create<PreviewImage> {
             currentCamera?.autoFocus { b, camera ->
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
                         it.onSuccess(
-                            imageMapper.map(
-                                CameraImage(
-                                    data,
-                                    camera.parameters.previewFormat,
-                                    previewSize.width,
-                                    previewSize.height,
-                                    cameraRotationUtil.rotationDegrees(currentCameraSide)
-                                )
+                            PreviewImage(
+                                data,
+                                previewSize.width,
+                                previewSize.height,
+                                cameraRotationUtil.rotationDegrees(currentCameraSide)
                             )
                         )
                     }
