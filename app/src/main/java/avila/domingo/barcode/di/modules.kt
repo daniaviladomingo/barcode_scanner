@@ -54,7 +54,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory <ICamera> { CameraImp(get(), get(), get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -66,7 +66,7 @@ val cameraModule = module {
         }
     }
 
-    single { NativeCamera(get(), get()) }
+    factory { NativeCamera(get(), get()) }
 
     single<IConfigureCamera> { ConfigureCameraImp(get(), get()) }
 
@@ -88,7 +88,7 @@ val decoderModule = module {
 }
 
 val managerModule = module {
-    single<IBarCodeManager> { BarCodeManagerImp(get(), get(), get(), get()) }
+    factory<IBarCodeManager> { BarCodeManagerImp(get(), get(), get(), get()) }
     single { 2L }
     single { TimeUnit.SECONDS }
 }
