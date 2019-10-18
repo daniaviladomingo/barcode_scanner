@@ -18,7 +18,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
-    private val REQUEST_CODE_CAMERA = 1
+    private val requestCodeCamera = 1
 
     private val surfaceView: SurfaceView by inject()
 
@@ -40,7 +40,7 @@ class MainActivity : BaseActivity() {
         if (isPermissionGranted(Manifest.permission.CAMERA)) {
             init()
         } else {
-            requestPermission(Manifest.permission.CAMERA, REQUEST_CODE_CAMERA)
+            requestPermission(Manifest.permission.CAMERA, requestCodeCamera)
         }
     }
 
@@ -81,7 +81,7 @@ class MainActivity : BaseActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_CODE_CAMERA -> {
+            requestCodeCamera -> {
                 if (grantResults.isPermissionsGranted()) {
                     init()
                 } else {
