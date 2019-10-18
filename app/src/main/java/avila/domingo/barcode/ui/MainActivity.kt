@@ -1,5 +1,6 @@
 package avila.domingo.barcode.ui
 
+import android.Manifest
 import android.os.Bundle
 import android.view.SurfaceView
 import android.view.animation.AlphaAnimation
@@ -9,11 +10,16 @@ import androidx.lifecycle.Observer
 import avila.domingo.barcode.R
 import avila.domingo.barcode.base.BaseActivity
 import avila.domingo.barcode.ui.data.ResourceState
+import avila.domingo.barcode.util.extension.isPermissionGranted
+import avila.domingo.barcode.util.extension.isPermissionsGranted
+import avila.domingo.barcode.util.extension.requestPermission
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
+    private val REQUEST_CODE_CAMERA = 1
+
     private val surfaceView: SurfaceView by inject()
 
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
@@ -23,15 +29,18 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setListener()
-        mainActivityViewModel.read()
-
         AlphaAnimation(0.0f, 1.0f).run {
             duration = 500
             startOffset = 20
             repeatMode = Animation.REVERSE
             repeatCount = Animation.INFINITE
             scanner_line.startAnimation(this)
+        }
+
+        if (isPermissionGranted(Manifest.permission.CAMERA)) {
+            init()
+        } else {
+            requestPermission(Manifest.permission.CAMERA, REQUEST_CODE_CAMERA)
         }
     }
 
@@ -45,6 +54,11 @@ class MainActivity : BaseActivity() {
         surface_view.removeView(surfaceView)
     }
 
+    private fun init() {
+        setListener()
+        mainActivityViewModel.read()
+    }
+
     private fun setListener() {
         mainActivityViewModel.barcodeLiveData.observe(this, Observer { resource ->
             resource?.run {
@@ -52,11 +66,29 @@ class MainActivity : BaseActivity() {
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
                         toast?.cancel()
-                        toast = Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT).apply { show() }
+                        toast = Toast.makeText(this@MainActivity, this, Toast.LENGTH_SHORT)
+                            .apply { show() }
                     }
                 }
             }
         })
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CODE_CAMERA -> {
+                if (grantResults.isPermissionsGranted()) {
+                    init()
+                } else {
+                    finish()
+                }
+            }
+        }
     }
 
     override fun getLayoutId(): Int = R.layout.activity_main

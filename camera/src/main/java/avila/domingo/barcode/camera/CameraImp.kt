@@ -2,8 +2,6 @@
 
 package avila.domingo.barcode.camera
 
-import android.hardware.Camera
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.lifecycle.Lifecycle
@@ -15,49 +13,39 @@ import avila.domingo.barcode.domain.model.PreviewImage
 import io.reactivex.Single
 
 class CameraImp(
-    nativeCamera: NativeCamera,
+    nativeCameraManager: NativeCameraManager,
     private val cameraRotationUtil: CameraRotationUtil,
     private val surfaceView: SurfaceView,
-    initialCameraSide: CameraSide,
+    private val cameraSide: CameraSide,
     lifecycle: Lifecycle // Esto es simplemente para start/stop la preview cuando la activity sale/entre en segundo plano
 ) : ICamera, LifecycleObserver {
 
-    private val tag = this::class.java.name
+    private val camera = nativeCameraManager.getCamera(cameraSide)
 
-    private var currentCameraSide = initialCameraSide
-    private var currentCamera: Camera? = null
+    private val surfaceHolderCallback = object : SurfaceHolder.Callback {
+        override fun surfaceChanged(
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
+        ) {
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {}
+
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            camera.setPreviewDisplay(holder)
+        }
+    }
 
     init {
         lifecycle.addObserver(this)
-
-        surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                Log.d(tag, "CALLBACK: surfaceChanged")
-//                currentCamera?.startPreview()
-            }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                Log.d(tag, "CALLBACK: surfaceDestroyed")
-//                currentCamera?.stopPreview()
-            }
-
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                Log.d(tag, "CALLBACK: surfaceCreated")
-                currentCamera?.setPreviewDisplay(holder)
-            }
-        })
-
-        currentCamera = nativeCamera.getCamera(initialCameraSide)
+        surfaceView.holder.addCallback(surfaceHolderCallback)
     }
 
     override fun getImage(): Single<PreviewImage> =
         Single.create<PreviewImage> {
-            currentCamera?.autoFocus { b, camera ->
+            camera.autoFocus { b, camera ->
                 if (b) {
                     camera.setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
@@ -66,7 +54,7 @@ class CameraImp(
                                 data,
                                 previewSize.width,
                                 previewSize.height,
-                                cameraRotationUtil.rotationDegrees(currentCameraSide)
+                                cameraRotationUtil.rotationDegrees(cameraSide)
                             )
                         )
                     }
@@ -76,22 +64,19 @@ class CameraImp(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun start() {
-        Log.d(tag, "start()")
-        currentCamera?.setPreviewDisplay(surfaceView.holder)
-        currentCamera?.startPreview()
+        camera.setPreviewDisplay(surfaceView.holder)
+        camera.startPreview()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun stop() {
-        Log.d(tag, "stop()")
-        currentCamera?.stopPreview()
+        camera.stopPreview()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun destroy() {
-        Log.d(tag, "destroy()")
-        currentCamera?.stopPreview()
-        currentCamera?.release()
-        currentCamera = null
+        surfaceView.holder.removeCallback(surfaceHolderCallback)
+        camera.stopPreview()
+        camera.release()
     }
 }

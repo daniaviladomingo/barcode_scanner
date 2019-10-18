@@ -1,12 +1,11 @@
 @file:Suppress("DEPRECATION")
 
-package avila.domingo.barcode
+package avila.domingo.barcode.camera.config
 
 import android.graphics.Point
 import android.hardware.Camera
 import android.view.WindowManager
 import avila.domingo.barcode.camera.CameraRotationUtil
-import avila.domingo.barcode.camera.IConfigureCamera
 import avila.domingo.barcode.domain.model.CameraSide
 import kotlin.math.abs
 
@@ -20,16 +19,16 @@ class ConfigureCameraImp(
             val screenSize = screenSize()
 
             val customParameters = parameters
-            customParameters.supportedFocusModes.run {
-                when {
-                    this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) -> customParameters.focusMode =
-                        Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
-                    this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO) -> customParameters.focusMode =
-                        Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
-                    this.contains(Camera.Parameters.FOCUS_MODE_AUTO) -> customParameters.focusMode =
-                        Camera.Parameters.FOCUS_MODE_AUTO
-                }
-            }
+//            customParameters.supportedFocusModes.run {
+//                when {
+//                    this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) -> customParameters.focusMode =
+//                        Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+//                    this.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO) -> customParameters.focusMode =
+//                        Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
+//                    this.contains(Camera.Parameters.FOCUS_MODE_AUTO) -> customParameters.focusMode =
+//                        Camera.Parameters.FOCUS_MODE_AUTO
+//                }
+//            }
 
             val screenRatio = screenSize.witdh / screenSize.height.toFloat()
 

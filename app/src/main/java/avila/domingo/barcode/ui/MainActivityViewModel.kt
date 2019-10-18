@@ -20,7 +20,7 @@ class MainActivityViewModel(
             .subscribe({ info ->
                 barcodeLiveData.value = Resource.success(info)
             }) {
-                barcodeLiveData.value = Resource.success(it.localizedMessage)
+                barcodeLiveData.value = Resource.error(it.localizedMessage)
             })
     }
 }

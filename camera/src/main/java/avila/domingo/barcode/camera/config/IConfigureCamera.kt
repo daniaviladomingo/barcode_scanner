@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package avila.domingo.barcode.camera
+package avila.domingo.barcode.camera.config
 
 import android.hardware.Camera
 import avila.domingo.barcode.domain.model.CameraSide
