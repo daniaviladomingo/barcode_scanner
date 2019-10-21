@@ -8,19 +8,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import avila.domingo.barcode.domain.ICamera
-import avila.domingo.barcode.domain.model.CameraSide
 import avila.domingo.barcode.domain.model.PreviewImage
 import io.reactivex.Single
 
 class CameraImp(
-    nativeCameraManager: NativeCameraManager,
+    private val nativeCamera: INativeCamera,
     private val cameraRotationUtil: CameraRotationUtil,
     private val surfaceView: SurfaceView,
-    private val cameraSide: CameraSide,
-    lifecycle: Lifecycle // Esto es simplemente para start/stop la preview cuando la activity sale/entre en segundo plano
+    lifecycle: () -> Lifecycle // Esto es simplemente para start/stop la preview cuando la activity sale/entre en segundo plano
 ) : ICamera, LifecycleObserver {
-
-    private val camera = nativeCameraManager.getCamera(cameraSide)
 
     private val surfaceHolderCallback = object : SurfaceHolder.Callback {
         override fun surfaceChanged(
@@ -34,27 +30,27 @@ class CameraImp(
         override fun surfaceDestroyed(holder: SurfaceHolder) {}
 
         override fun surfaceCreated(holder: SurfaceHolder) {
-            camera.setPreviewDisplay(holder)
+            nativeCamera.camera().setPreviewDisplay(holder)
         }
     }
 
     init {
-        lifecycle.addObserver(this)
+        lifecycle.invoke().addObserver(this)
         surfaceView.holder.addCallback(surfaceHolderCallback)
     }
 
     override fun getImage(): Single<PreviewImage> =
         Single.create<PreviewImage> {
-            camera.autoFocus { b, camera ->
+            nativeCamera.camera().autoFocus { b, camera ->
                 if (b) {
-                    camera.setOneShotPreviewCallback { data, _ ->
+                    nativeCamera.camera().setOneShotPreviewCallback { data, _ ->
                         val previewSize = camera.parameters.previewSize
                         it.onSuccess(
                             PreviewImage(
                                 data,
                                 previewSize.width,
                                 previewSize.height,
-                                cameraRotationUtil.rotationDegrees(cameraSide)
+                                cameraRotationUtil.rotationDegrees()
                             )
                         )
                     }
@@ -64,19 +60,19 @@ class CameraImp(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun start() {
-        camera.setPreviewDisplay(surfaceView.holder)
-        camera.startPreview()
+        nativeCamera.camera().setPreviewDisplay(surfaceView.holder)
+        nativeCamera.camera().startPreview()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun stop() {
-        camera.stopPreview()
+        nativeCamera.camera().stopPreview()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun destroy() {
         surfaceView.holder.removeCallback(surfaceHolderCallback)
-        camera.stopPreview()
-        camera.release()
+        nativeCamera.camera().stopPreview()
+        nativeCamera.camera().release()
     }
 }

@@ -10,9 +10,10 @@ import avila.domingo.barcode.domain.model.CameraSide
 
 class CameraRotationUtil(
     private val windowManager: WindowManager,
+    private val cameraSide: CameraSide,
     private val cameraSideMapper: CameraSideMapper
 ) {
-    fun rotationDegrees(cameraSide: CameraSide): Int {
+    fun rotationDegrees(): Int {
         val cameraInfo = Camera.CameraInfo()
         Camera.getCameraInfo(cameraSideMapper.map(cameraSide), cameraInfo)
 
@@ -29,13 +30,5 @@ class CameraRotationUtil(
         }
 
         return (cameraInfo.orientation + degrees) % 360
-    }
-
-    fun rotationDegreesSurface(): Int = when (windowManager.defaultDisplay.rotation) {
-        Surface.ROTATION_0 -> 90
-        Surface.ROTATION_90 -> 0
-        Surface.ROTATION_180 -> 90
-        Surface.ROTATION_270 -> 180
-        else -> 0
     }
 }

@@ -1,16 +1,14 @@
 package avila.domingo.barcode.di
 
 import android.content.Context
-import android.util.Log
 import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import avila.domingo.barcode.camera.CameraImp
 import avila.domingo.barcode.camera.CameraRotationUtil
+import avila.domingo.barcode.camera.INativeCamera
 import avila.domingo.barcode.camera.NativeCameraManager
-import avila.domingo.barcode.camera.config.ConfigureCameraImp
-import avila.domingo.barcode.camera.config.IConfigureCamera
 import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.decoder.BarCodeDecoderImp
 import avila.domingo.barcode.decoder.mapper.BinaryBitmapMapper
@@ -42,8 +40,8 @@ val appModule = module {
 val activityModule = module {
     lateinit var activityReference: AppCompatActivity
     factory { (activity: AppCompatActivity) -> activityReference = activity }
-    factory { activityReference.lifecycle }
     factory<Context>(ForActivity) { activityReference }
+    factory { { activityReference.lifecycle } }
 }
 
 val viewModelModule = module {
@@ -55,7 +53,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get(), get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -67,18 +65,13 @@ val cameraModule = module {
         }
     }
 
-    factory { NativeCameraManager(get(), get()) }
+    single<INativeCamera> { NativeCameraManager(get(), get(), get(), get()) }
 
-    single<IConfigureCamera> {
-        ConfigureCameraImp(
-            get(),
-            get()
-        )
-    }
-
-    single { CameraRotationUtil(get(), get()) }
+    single { CameraRotationUtil(get(), get(), get()) }
 
     single { CameraSide.BACK }
+
+    single { 640..2160 }
 }
 
 val decoderModule = module {
