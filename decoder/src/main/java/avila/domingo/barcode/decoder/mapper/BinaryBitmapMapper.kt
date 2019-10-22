@@ -18,7 +18,7 @@ class BinaryBitmapMapper : Mapper<PreviewImage, BinaryBitmap>() {
                     0,
                     third,
                     width,
-                    height - third,
+                    third,
                     false
                 )
             )
