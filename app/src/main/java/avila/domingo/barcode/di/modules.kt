@@ -5,6 +5,7 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import avila.domingo.barcode.android.ILifecycleUpdate
 import avila.domingo.barcode.camera.CameraImp
 import avila.domingo.barcode.camera.CameraRotationUtil
 import avila.domingo.barcode.camera.INativeCamera
@@ -32,6 +33,8 @@ import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
+var nativeCameraManager: ILifecycleUpdate? = null
+
 val appModule = module {
     single(ForApplication) { androidContext() }
     single { (get(ForApplication) as Context).getSystemService(Context.WINDOW_SERVICE) as WindowManager }
@@ -39,9 +42,15 @@ val appModule = module {
 
 val activityModule = module {
     lateinit var activityReference: AppCompatActivity
-    factory { (activity: AppCompatActivity) -> activityReference = activity }
+    factory { (activity: AppCompatActivity) ->
+        nativeCameraManager?.update(activity.lifecycle)
+        activityReference = activity
+        Unit
+    }
+
     factory<Context>(ForActivity) { activityReference }
-    factory { { activityReference.lifecycle } }
+
+    factory { activityReference.lifecycle }
 }
 
 val viewModelModule = module {
@@ -53,7 +62,7 @@ val useCaseModule = module {
 }
 
 val cameraModule = module {
-    factory<ICamera> { CameraImp(get(), get(), get(), get()) }
+    factory<ICamera> { CameraImp(get(), get()) }
 
     single {
         SurfaceView(get()).apply {
@@ -65,7 +74,18 @@ val cameraModule = module {
         }
     }
 
-    single<INativeCamera> { NativeCameraManager(get(), get(), get(), get()) }
+    single<INativeCamera> {
+        NativeCameraManager(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        ).apply {
+            nativeCameraManager = this
+        }
+    }
 
     single { CameraRotationUtil(get(), get(), get()) }
 

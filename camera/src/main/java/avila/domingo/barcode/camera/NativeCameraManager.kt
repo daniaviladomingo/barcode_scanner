@@ -5,7 +5,13 @@ package avila.domingo.barcode.camera
 import android.graphics.Point
 import android.hardware.Camera
 import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.WindowManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import avila.domingo.barcode.android.ILifecycleUpdate
 import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.domain.model.CameraSide
 import kotlin.math.abs
@@ -14,13 +20,35 @@ class NativeCameraManager(
     private val cameraSideMapper: CameraSideMapper,
     private val windowManager: WindowManager,
     private val rangePreview: IntRange,
-    private val cameraSide: CameraSide
-) : INativeCamera {
+    private val surfaceView: SurfaceView,
+    private val cameraSide: CameraSide,
+    lifecycle: Lifecycle
+) : INativeCamera, ILifecycleUpdate, LifecycleObserver {
 
     private lateinit var currentCamera: Camera
 
+    private val surfaceHolderCallback = object : SurfaceHolder.Callback {
+        override fun surfaceChanged(
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
+        ) {
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {}
+
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            currentCamera.setPreviewDisplay(holder)
+        }
+    }
+
     init {
-        openCamera(cameraSide)
+        lifecycle.addObserver(this)
+    }
+
+    override fun update(lifecycle: Lifecycle) {
+        lifecycle.addObserver(this)
     }
 
     override fun camera(): Camera = currentCamera
@@ -103,4 +131,25 @@ class NativeCameraManager(
         }
 
     internal data class Size(val witdh: Int, val height: Int)
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun start() {
+        surfaceView.holder.addCallback(surfaceHolderCallback)
+        openCamera(cameraSide)
+        currentCamera.setPreviewDisplay(surfaceView.holder)
+        currentCamera.startPreview()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun stop() {
+        currentCamera.stopPreview()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun destroy() {
+        surfaceView.holder.removeCallback(surfaceHolderCallback)
+        currentCamera.cancelAutoFocus()
+        currentCamera.stopPreview()
+        currentCamera.release()
+    }
 }
