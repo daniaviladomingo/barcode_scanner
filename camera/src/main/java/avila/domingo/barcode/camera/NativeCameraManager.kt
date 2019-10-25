@@ -8,10 +8,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import avila.domingo.barcode.android.ILifecycleUpdate
+import avila.domingo.barcode.android.ILifecycleObserver
 import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.domain.model.CameraSide
 import kotlin.math.abs
@@ -21,9 +18,8 @@ class NativeCameraManager(
     private val windowManager: WindowManager,
     private val rangePreview: IntRange,
     private val surfaceView: SurfaceView,
-    private val cameraSide: CameraSide,
-    lifecycle: Lifecycle
-) : INativeCamera, ILifecycleUpdate, LifecycleObserver {
+    private val cameraSide: CameraSide
+) : INativeCamera, ILifecycleObserver {
 
     private lateinit var currentCamera: Camera
 
@@ -41,14 +37,6 @@ class NativeCameraManager(
         override fun surfaceCreated(holder: SurfaceHolder) {
             currentCamera.setPreviewDisplay(holder)
         }
-    }
-
-    init {
-        lifecycle.addObserver(this)
-    }
-
-    override fun update(lifecycle: Lifecycle) {
-        lifecycle.addObserver(this)
     }
 
     override fun camera(): Camera = currentCamera
@@ -132,21 +120,19 @@ class NativeCameraManager(
 
     internal data class Size(val witdh: Int, val height: Int)
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun start() {
+    override fun start() {
         surfaceView.holder.addCallback(surfaceHolderCallback)
         openCamera(cameraSide)
         currentCamera.setPreviewDisplay(surfaceView.holder)
         currentCamera.startPreview()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun stop() {
+    override fun stop() {
         currentCamera.stopPreview()
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun destroy() {
+
+    override fun destroy() {
         surfaceView.holder.removeCallback(surfaceHolderCallback)
         currentCamera.cancelAutoFocus()
         currentCamera.stopPreview()

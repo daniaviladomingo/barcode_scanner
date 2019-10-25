@@ -12,18 +12,12 @@ import avila.domingo.barcode.R
 import avila.domingo.barcode.ui.data.ResourceState
 import kotlinx.android.synthetic.main.activity_base.*
 import kotlinx.android.synthetic.main.view_error.*
-import org.koin.android.ext.android.inject
-import org.koin.core.parameter.parametersOf
 
 abstract class BaseActivity : AppCompatActivity() {
-
-    private val fakeInject: Unit by inject { parametersOf(this) }
-
     private lateinit var activityView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fakeInject.apply {  }
 
         if (getLayoutId() == 0) {
             throw RuntimeException("Invalid Layout ID")
@@ -32,7 +26,10 @@ abstract class BaseActivity : AppCompatActivity() {
         setContentView(R.layout.activity_base)
 
         activityView = layoutInflater.inflate(getLayoutId(), null)
-        (view as FrameLayout).addView(activityView, LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        (view as FrameLayout).addView(
+            activityView,
+            LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
 
         view_empty.emptyListener = checkAgain()
         view_error.errorListener = tryAgain()
