@@ -38,7 +38,10 @@ val appModule = module {
 }
 
 val activityModule = module {
-    factory { (lifecycle: Lifecycle) -> LifecycleManager(get(), lifecycle) }
+    factory { (lifecycle: Lifecycle) ->
+        LifecycleManager(get(), lifecycle)
+        Unit
+    }
 }
 
 val viewModelModule = module {

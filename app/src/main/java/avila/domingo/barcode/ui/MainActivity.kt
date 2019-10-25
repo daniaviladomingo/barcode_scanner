@@ -26,7 +26,7 @@ class MainActivity : BaseActivity() {
 
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
 
-    private val lifecycleObserver: LifecycleManager by inject { parametersOf(this.lifecycle) }
+    private val lifecycleObserver: Unit by inject { parametersOf(this.lifecycle) }
 
     private var toast: Toast? = null
 
