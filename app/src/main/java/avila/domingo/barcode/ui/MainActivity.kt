@@ -8,7 +8,7 @@ import android.view.animation.Animation
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import avila.domingo.barcode.R
-import avila.domingo.barcode.android.LifecycleManager
+import avila.domingo.barcode.lifecycle.LifecycleManager
 import avila.domingo.barcode.base.BaseActivity
 import avila.domingo.barcode.ui.data.ResourceState
 import avila.domingo.barcode.util.extension.isPermissionGranted

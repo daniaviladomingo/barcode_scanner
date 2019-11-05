@@ -5,8 +5,8 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.lifecycle.Lifecycle
-import avila.domingo.barcode.android.ILifecycleObserver
-import avila.domingo.barcode.android.LifecycleManager
+import avila.domingo.barcode.lifecycle.ILifecycleObserver
+import avila.domingo.barcode.lifecycle.LifecycleManager
 import avila.domingo.barcode.camera.CameraImp
 import avila.domingo.barcode.camera.CameraRotationUtil
 import avila.domingo.barcode.camera.INativeCamera

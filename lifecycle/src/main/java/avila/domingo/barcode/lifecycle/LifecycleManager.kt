@@ -1,9 +1,9 @@
-package avila.domingo.barcode.android
+package avila.domingo.barcode.lifecycle
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import avila.domingo.barcode.android.ILifecycleObserver
+import avila.domingo.barcode.lifecycle.ILifecycleObserver
 
 class LifecycleManager(
     private val lifecycleObserver: ILifecycleObserver,

@@ -8,7 +8,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.WindowManager
-import avila.domingo.barcode.android.ILifecycleObserver
+import avila.domingo.barcode.lifecycle.ILifecycleObserver
 import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
 import avila.domingo.barcode.domain.model.CameraSide
 import kotlin.math.abs
