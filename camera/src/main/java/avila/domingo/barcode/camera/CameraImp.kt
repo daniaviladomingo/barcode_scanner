@@ -2,22 +2,24 @@
 
 package avila.domingo.barcode.camera
 
+import avila.domingo.barcode.camera.model.mapper.IllegalCameraAccess
 import avila.domingo.barcode.domain.ICamera
 import avila.domingo.barcode.domain.model.PreviewImage
-import io.reactivex.Single
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class CameraImp(
     private val nativeCamera: INativeCamera,
     private val cameraRotationUtil: CameraRotationUtil
 ) : ICamera {
-    override fun getImage(): Single<PreviewImage> =
-        Single.create<PreviewImage> {
-            try {
-                nativeCamera.camera().autoFocus { b, camera ->
-                    if (b) {
-                        nativeCamera.camera().setOneShotPreviewCallback { data, _ ->
-                            val previewSize = camera.parameters.previewSize
-                            it.onSuccess(
+    override suspend fun getImage(): Result<PreviewImage> = suspendCoroutine { continuation ->
+        try {
+            nativeCamera.camera().autoFocus { b, camera ->
+                if (b) {
+                    nativeCamera.camera().setOneShotPreviewCallback { data, _ ->
+                        val previewSize = camera.parameters.previewSize
+                        continuation.resume(
+                            Result.success(
                                 PreviewImage(
                                     data,
                                     previewSize.width,
@@ -25,10 +27,12 @@ class CameraImp(
                                     cameraRotationUtil.rotationDegrees()
                                 )
                             )
-                        }
+                        )
                     }
                 }
-            } catch (e: RuntimeException) {
             }
+        } catch (e: IllegalCameraAccess) {
+            continuation.resume(Result.failure(e))
         }
+    }
 }

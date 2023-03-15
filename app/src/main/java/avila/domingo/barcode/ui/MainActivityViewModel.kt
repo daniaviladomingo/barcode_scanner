@@ -1,26 +1,40 @@
 package avila.domingo.barcode.ui
 
-import avila.domingo.barcode.base.BaseViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import avila.domingo.barcode.camera.model.mapper.IllegalCameraAccess
 import avila.domingo.barcode.domain.interactor.BarCodeReaderUseCase
-import avila.domingo.barcode.schedulers.IScheduleProvider
 import avila.domingo.barcode.ui.data.Resource
 import avila.domingo.barcode.util.SingleLiveEvent
+import com.google.zxing.ChecksumException
+import com.google.zxing.FormatException
+import com.google.zxing.NotFoundException
+import kotlinx.coroutines.launch
 
 class MainActivityViewModel(
     private val barCodeReaderUseCase: BarCodeReaderUseCase,
-    private val scheduleProvider: IScheduleProvider
-) : BaseViewModel() {
+) : ViewModel() {
 
     val barcodeLiveData = SingleLiveEvent<Resource<String>>()
 
     fun read() {
-        addDisposable(barCodeReaderUseCase.execute()
-            .observeOn(scheduleProvider.ui())
-            .subscribeOn(scheduleProvider.computation())
-            .subscribe({ info ->
-                barcodeLiveData.value = Resource.success(info)
-            }) {
-                barcodeLiveData.value = Resource.error(it.localizedMessage)
-            })
+        viewModelScope.launch {
+            barCodeReaderUseCase(Unit).collect { result ->
+                    result.onSuccess { info ->
+                            barcodeLiveData.value = Resource.success(info)
+                        }.onFailure { error ->
+                            when (error) {
+                                is NotFoundException -> {}
+                                is ChecksumException -> {}
+                                is FormatException -> {}
+                                is IllegalCameraAccess -> {}
+                                else -> {
+                                    barcodeLiveData.value =
+                                        Resource.error(error.localizedMessage ?: "Error")
+                                }
+                            }
+                        }
+                }
+        }
     }
 }

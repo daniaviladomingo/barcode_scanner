@@ -2,14 +2,9 @@ apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
     implementation project(':domain')
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
-    implementation 'com.google.zxing:core:3.4.0'
-
-    testImplementation 'junit:junit:4.12'
+    implementation 'com.google.zxing:core:3.5.1'
 }
 
 sourceCompatibility = "1.7"

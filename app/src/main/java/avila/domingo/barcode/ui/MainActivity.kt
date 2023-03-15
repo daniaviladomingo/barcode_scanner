@@ -6,20 +6,18 @@ import android.view.SurfaceView
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.Toast
-import androidx.lifecycle.Observer
 import avila.domingo.barcode.R
-import avila.domingo.barcode.lifecycle.LifecycleManager
 import avila.domingo.barcode.base.BaseActivity
+import avila.domingo.barcode.databinding.ActivityMainBinding
 import avila.domingo.barcode.ui.data.ResourceState
 import avila.domingo.barcode.util.extension.isPermissionGranted
 import avila.domingo.barcode.util.extension.isPermissionsGranted
 import avila.domingo.barcode.util.extension.requestPermission
-import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val requestCodeCamera = 1
 
     private val surfaceView: SurfaceView by inject()
@@ -40,7 +38,7 @@ class MainActivity : BaseActivity() {
             startOffset = 20
             repeatMode = Animation.REVERSE
             repeatCount = Animation.INFINITE
-            scanner_line.startAnimation(this)
+            binding.scannerLine.startAnimation(this)
         }
 
         if (isPermissionGranted(Manifest.permission.CAMERA)) {
@@ -52,12 +50,12 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        surface_view.addView(surfaceView)
+        binding.surfaceView.addView(surfaceView)
     }
 
     override fun onPause() {
         super.onPause()
-        surface_view.removeView(surfaceView)
+        binding.surfaceView.removeView(surfaceView)
     }
 
     private fun init() {
@@ -66,8 +64,8 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setListener() {
-        mainActivityViewModel.barcodeLiveData.observe(this, Observer { resource ->
-            resource?.run {
+        mainActivityViewModel.barcodeLiveData.observe(this) { resource ->
+            resource.run {
                 managementResourceState(status, message)
                 if (status == ResourceState.SUCCESS) {
                     data?.run {
@@ -77,7 +75,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-        })
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -97,7 +95,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun getLayoutId(): Int = R.layout.activity_main
+    override fun getView(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
 
     override fun checkAgain(): () -> Unit = {}
 

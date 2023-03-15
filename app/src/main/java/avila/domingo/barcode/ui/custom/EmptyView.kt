@@ -3,9 +3,9 @@ package avila.domingo.barcode.ui.custom
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.Button
 import android.widget.RelativeLayout
 import avila.domingo.barcode.R
-import kotlinx.android.synthetic.main.view_empty.view.*
 
 class EmptyView : RelativeLayout {
 
@@ -25,6 +25,6 @@ class EmptyView : RelativeLayout {
 
     private fun init() {
         LayoutInflater.from(context).inflate(R.layout.view_empty, this)
-        button_check_again.setOnClickListener { emptyListener?.invoke() }
+        findViewById<Button>(R.id.button_check_again).setOnClickListener { emptyListener?.invoke() }
     }
 }

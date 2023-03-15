@@ -10,6 +10,7 @@ import android.view.SurfaceView
 import android.view.WindowManager
 import avila.domingo.barcode.lifecycle.ILifecycleObserver
 import avila.domingo.barcode.camera.model.mapper.CameraSideMapper
+import avila.domingo.barcode.camera.model.mapper.IllegalCameraAccess
 import avila.domingo.barcode.domain.model.CameraSide
 import kotlin.math.abs
 
@@ -21,7 +22,7 @@ class NativeCameraManager(
     private val cameraSide: CameraSide
 ) : INativeCamera, ILifecycleObserver {
 
-    private lateinit var currentCamera: Camera
+    private var currentCamera: Camera? = null
 
     private val surfaceHolderCallback = object : SurfaceHolder.Callback {
         override fun surfaceChanged(
@@ -35,11 +36,11 @@ class NativeCameraManager(
         override fun surfaceDestroyed(holder: SurfaceHolder) {}
 
         override fun surfaceCreated(holder: SurfaceHolder) {
-            currentCamera.setPreviewDisplay(holder)
+            currentCamera?.setPreviewDisplay(holder)
         }
     }
 
-    override fun camera(): Camera = currentCamera
+    override fun camera(): Camera = currentCamera ?: throw IllegalCameraAccess("Camera null")
 
     private fun openCamera(cameraSide: CameraSide) {
         currentCamera = Camera.open(cameraSideMapper.map(cameraSide))
@@ -47,8 +48,7 @@ class NativeCameraManager(
     }
 
     private fun configure() {
-        currentCamera.run {
-
+        currentCamera?.run {
             val screenSize = screenSize()
 
             val customParameters = parameters
@@ -64,15 +64,13 @@ class NativeCameraManager(
                     it.width in rangePreview
                 }
                 .sortedByDescending { it.width }
-                .apply {
-                    this.forEach {
-                        val previewDiff =
-                            abs((it.width / it.height.toFloat()) - screenRatio)
-                        if (previewDiff < diff) {
-                            diff = previewDiff
-                            previewWidth = it.width
-                            previewHeight = it.height
-                        }
+                .onEach {
+                    val previewDiff =
+                        abs((it.width / it.height.toFloat()) - screenRatio)
+                    if (previewDiff < diff) {
+                        diff = previewDiff
+                        previewWidth = it.width
+                        previewHeight = it.height
                     }
                 }
                 .filter { screenRatio == (it.width / it.height.toFloat()) }
@@ -123,19 +121,19 @@ class NativeCameraManager(
     override fun start() {
         surfaceView.holder.addCallback(surfaceHolderCallback)
         openCamera(cameraSide)
-        currentCamera.setPreviewDisplay(surfaceView.holder)
-        currentCamera.startPreview()
+        currentCamera?.setPreviewDisplay(surfaceView.holder)
+        currentCamera?.startPreview()
     }
 
     override fun stop() {
-        currentCamera.stopPreview()
+        currentCamera?.stopPreview()
     }
 
 
     override fun destroy() {
         surfaceView.holder.removeCallback(surfaceHolderCallback)
-        currentCamera.cancelAutoFocus()
-        currentCamera.stopPreview()
-        currentCamera.release()
+        currentCamera?.cancelAutoFocus()
+        currentCamera?.stopPreview()
+        currentCamera?.release()
     }
 }

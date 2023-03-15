@@ -1,72 +1,71 @@
 package avila.domingo.barcode.base
 
 import android.os.Bundle
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewbinding.ViewBinding
 import avila.domingo.barcode.R
+import avila.domingo.barcode.databinding.ActivityBaseBinding
 import avila.domingo.barcode.ui.data.ResourceState
-import kotlinx.android.synthetic.main.activity_base.*
-import kotlinx.android.synthetic.main.view_error.*
 
-abstract class BaseActivity : AppCompatActivity() {
-    private lateinit var activityView: View
+abstract class BaseActivity<T : ViewBinding> : AppCompatActivity() {
+
+    private lateinit var baseBinding: ActivityBaseBinding
+
+    protected lateinit var binding: T
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (getLayoutId() == 0) {
-            throw RuntimeException("Invalid Layout ID")
-        }
 
-        setContentView(R.layout.activity_base)
+        baseBinding = ActivityBaseBinding.inflate(layoutInflater)
+        setContentView(baseBinding.root)
 
-        activityView = layoutInflater.inflate(getLayoutId(), null)
-        (view as FrameLayout).addView(
-            activityView,
+        binding = getView()
+        (baseBinding.view).addView(
+            binding.root,
             LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         )
 
-        view_empty.emptyListener = checkAgain()
-        view_error.errorListener = tryAgain()
+        baseBinding.viewEmpty.emptyListener = checkAgain()
+        baseBinding.viewError.errorListener = tryAgain()
 
         initializeToolbar()
     }
+    protected abstract fun getView(): T
 
     private fun initializeToolbar() {}
-
-    protected abstract fun getLayoutId(): Int
 
     protected fun managementResourceState(resourceState: ResourceState, message: String?) {
         when (resourceState) {
             ResourceState.LOADING -> {
-                view.visibility = VISIBLE
-                view_error.visibility = GONE
-                view_empty.visibility = GONE
-                view_progress.visibility = VISIBLE
+                baseBinding.view.visibility = VISIBLE
+                baseBinding.viewError.visibility = GONE
+                baseBinding.viewEmpty.visibility = GONE
+                baseBinding.viewProgress.visibility = VISIBLE
             }
             ResourceState.SUCCESS -> {
-                view.visibility = VISIBLE
-                view_error.visibility = GONE
-                view_empty.visibility = GONE
-                view_progress.visibility = GONE
+                baseBinding.view.visibility = VISIBLE
+                baseBinding.viewError.visibility = GONE
+                baseBinding.viewEmpty.visibility = GONE
+                baseBinding.viewProgress.visibility = GONE
             }
             ResourceState.EMPTY -> {
-                view.visibility = GONE
-                view_error.visibility = GONE
-                view_empty.visibility = VISIBLE
-                view_progress.visibility = GONE
+                baseBinding.view.visibility = GONE
+                baseBinding.viewError.visibility = GONE
+                baseBinding.viewEmpty.visibility = VISIBLE
+                baseBinding.viewProgress.visibility = GONE
             }
             ResourceState.ERROR -> {
-                view.visibility = GONE
-                view_error.visibility = VISIBLE
-                error_message.text = message ?: ""
-                view_empty.visibility = GONE
-                view_progress.visibility = GONE
+                baseBinding.view.visibility = GONE
+                baseBinding.viewError.visibility = VISIBLE
+                baseBinding.viewError.findViewById<TextView>(R.id.error_message).text = message ?: ""
+                baseBinding.viewEmpty.visibility = GONE
+                baseBinding.viewProgress.visibility = GONE
             }
         }
     }

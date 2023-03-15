@@ -17,10 +17,9 @@ class AppApplication : Application() {
                 activityModule,
                 viewModelModule,
                 useCaseModule,
-                managerModule,
                 decoderModule,
                 cameraModule,
-                scheduleModule,
+                dispatcherModule,
                 mapperModule
             )
         }
